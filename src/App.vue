@@ -9,13 +9,21 @@ import axios from "axios";
 const items = ref([])
 
 const filters = reactive({
-  sortBy: '',
+  sortBy: 'title',
   searchQuery: ''
 })
 
 const fetchItems = async () => {
+  const params = {
+    sortBy: filters.sortBy
+  }
+  if (filters.searchQuery) {
+    params.title = `*${filters.searchQuery}*`
+  }
   try {
-    const { data } = await axios.get('https://82f30c081443cd59.mokky.dev/sneakers?sortBy=' + filters.sortBy)
+    const { data } = await axios.get('https://82f30c081443cd59.mokky.dev/sneakers', {
+      params
+    })
 
     items.value = data
   } catch(err) {
@@ -25,6 +33,11 @@ const fetchItems = async () => {
 
 const onChangeSelect = function (event) {
   filters.sortBy = event.target.value;
+
+}
+
+const onChangeInput = function (event) {
+  filters.searchQuery = event.target.value;
 }
 
 onMounted(fetchItems)
@@ -53,7 +66,7 @@ watch(filters, fetchItems)
 
           <div class="relative">
             <img class="absolute top-4 left-4" src="/search.svg" alt="">
-            <input class="border-2 rounded-md py-2 pl-10 pr-4 outline-none focus:border-gray-400" placeholder="Поиск">
+            <input @input="onChangeInput" class="border-2 rounded-md py-2 pl-10 pr-4 outline-none focus:border-gray-400" placeholder="Поиск">
           </div>
         </div>
         
